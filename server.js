@@ -1,3 +1,18 @@
+/* TODO:
+
+ - Add collision detection
+ - Add color
+ - Create scenes!!
+ - - Setup
+ - - - Pick name
+ - - - Play
+ - - - (Pause?)
+ - - - Game Over
+ - - Game modes
+ - - - FFA
+ - - - Teams
+
+*/
 const FRAME_RATE = 20;
 const express = require('express');
 const app = express();
@@ -19,6 +34,7 @@ io.on('connection', (client) => {
     id: client.id,
     x: 100,
     y: 100,
+    size: 10,
   });
   client.on('clientMSG', (data) => {
     console.log(`Client ${client.id} says "${data}"`);
@@ -29,6 +45,7 @@ io.on('connection', (client) => {
       if (player.id == client.id) { // when we find the data corresponding with the updating client
         player.x = data.x; // update the data accordingly
         player.y = data.y;
+        player.size = data.size;
         break; // stop looping, our job here is done
       }
     }
@@ -42,7 +59,7 @@ io.on('connection', (client) => {
         break; // stop looping, our job here is done
       }
     }
-    console.log(`Client ID ${client.id} disconnected after ${(Date.now() - client.start)/1000} seconds because ${reason}, leaving ${playerData.length} clients left.`);
+    console.log(`Client ID ${client.id} disconnected after ${(Date.now() - client.start)/1000} seconds because ${reason}, leaving ${playerData.length} client(s) left.`);
   });
 });
 

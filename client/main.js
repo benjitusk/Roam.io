@@ -1,3 +1,5 @@
+let size = 10;
+
 function setup() {
   frameRate(20);
   createCanvas(windowWidth, windowHeight);
@@ -7,12 +9,13 @@ function setup() {
 function draw() {
   background(0);
   socket.emit('mouseMove', {
+    id: socket.id,
     x: mouseX,
     y: mouseY,
-    id: socket.id
+    size: size
   });
 
   for (let peer of peers) {
-    ellipse(peer.x, peer.y, 10);
+    ellipse(peer.x, peer.y, peer.size);
   }
 }
