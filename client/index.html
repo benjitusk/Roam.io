@@ -1,0 +1,7 @@
+<script src="/socket.io/socket.io.js" charset="utf-8"></script>
+<script type="text/javascript">
+  const socket = io('http://localhost');
+  socket.on("welcome", (data) => {
+    console.log(data);
+  });
+</script>
