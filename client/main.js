@@ -5,5 +5,8 @@ function setup() {
 }
 
 function draw() {
-
+  socket.emit('mouseMove', {
+    x: mouseX,
+    y: mouseY
+  });
 }
