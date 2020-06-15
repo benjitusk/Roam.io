@@ -1,7 +1,7 @@
 /* TODO:
 
  - Add collision detection
- - Add color
+ + Add color
  - Create scenes!!
  - - Setup
  - - - Pick name
@@ -35,6 +35,7 @@ io.on('connection', (client) => {
     x: 100,
     y: 100,
     size: 10,
+    color: undefined,
   });
   client.on('clientMSG', (data) => {
     console.log(`Client ${client.id} says "${data}"`);
@@ -46,10 +47,10 @@ io.on('connection', (client) => {
         player.x = data.x; // update the data accordingly
         player.y = data.y;
         player.size = data.size;
+        player.color = data.color
         break; // stop looping, our job here is done
       }
     }
-    console.log(data);
 
   });
   client.on('disconnect', (reason) => {
