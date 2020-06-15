@@ -17,9 +17,7 @@ io.on('connection', (client) => {
   client.on('msg', (data) => {
     console.log(data);
   });
-  client.on('mouseMove', (data) => {
-    console.log(data);
-  })
+
   client.on('disconnect', (reason) => {
     console.log(`Client disconnected after ${(Date.now() - client.start)/1000} seconds because ${reason}.`)
   });
