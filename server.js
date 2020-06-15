@@ -1,4 +1,4 @@
-cont FRAME_RATE = 20;
+const FRAME_RATE = 20;
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
