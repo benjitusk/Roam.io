@@ -16,5 +16,5 @@ io.on(`connection`, (client) => {
   });
   client.on("disconnect", (reason) => {
     console.log(`Client disconnected after ${(Date.now() - client.start)/1000} seconds because ${reason}.`)
-  })
+  });
 });
