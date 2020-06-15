@@ -70,7 +70,7 @@ io.on('connection', (client) => {
 
   });
 
-  client.on('mouseMove', (data) => {
+  client.on('serverUpdate', (data) => {
 
     for (let player of playerData) { // go through the playerData
       if (player.id == client.id) { // when we find the data corresponding with the updating client
@@ -96,5 +96,5 @@ io.on('connection', (client) => {
 });
 
 setInterval(() => {
-  io.emit('update', playerData);
+  io.emit('updateClients', playerData);
 }, 1000 / FRAME_RATE);

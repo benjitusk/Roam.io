@@ -2,6 +2,7 @@ let size = 10;
 let cellColor;
 
 function setup() {
+
   frameRate(20);
   createCanvas(windowWidth, windowHeight);
   fill(255);
@@ -11,13 +12,8 @@ function setup() {
 
 function draw() {
   background(0);
-  socket.emit('mouseMove', {
-    id: socket.id,
-    x: mouseX,
-    y: mouseY,
-    size: size,
-    color: cellColor
-  });
+  player.update()
+  socket.emit('mouseMove', {});
 
   for (let peer of peers) {
     fill(peer.color, 255, 255);
@@ -65,6 +61,15 @@ class Player {
     this.size;
   }
 
+  update() {
+    socket.emit('serverUpdate', {
+      id: socket.id,
+      x: mouseX,
+      y: mouseY,
+      size: size,
+      color: cellColor
 
+    });
+  }
 
 }

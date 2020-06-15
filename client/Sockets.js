@@ -5,6 +5,6 @@ socket.on('serverMSG', (data) => {
   console.log(`[SERVER]: ${data}`);
 });
 
-socket.on('update', (data) => {
+socket.on('updateClients', (data) => {
   peers = data;
 })
