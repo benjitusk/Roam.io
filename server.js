@@ -12,7 +12,7 @@ app.use('/', express.static('client'));
 
 io.on('connection', (client) => {
   client.start = Date.now();
-  console.log('New Client');
+  console.log(`New Client ID: ${client.id}`);
   client.emit('welcome', 'Client connected.');
   client.on('msg', (data) => {
     console.log(data);
