@@ -1,3 +1,4 @@
+cont FRAME_RATE = 20;
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -47,4 +48,4 @@ io.on('connection', (client) => {
 
 setInterval(() => {
   io.emit('update', playerData);
-}, 100);
+}, 1000 / FRAME_RATE);
