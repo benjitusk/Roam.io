@@ -1,16 +1,39 @@
 /* TODO:
 
- - Add collision detection
- + Add color
- - Create scenes!!
- - - Setup
- - - - Pick name
- - - - Play
- - - - (Pause?)
- - - - Game Over
- - - Game modes
- - - - FFA
- - - - Teams
+In Progress
+|
+|- Make a "Player" Object on the client
+
+
+HIGH PRIORITY
+|
+|- Make some sort of "map"
+|- - have a viewport for the client
+|- - this will definately be a pain, but it's important
+|- - look at other GitHub repositories for inspiration
+|
+|- MAKE FOOD ARRAY, store it on server
+|- Write a function for random distribution of stuffs
+|- - pick random coords, if anything is within ? pixels, repeat, else, return.
+|- Perform collision detection on client end
+
+Medium Priority
+|
+|-Change Controls to WASD
+
+low priority
+|
+|- Create scenes!!
+|- - Setup
+|- - - Pick name
+|- - - Play
+|- - - (Pause?)
+|- - - Game Over
+|- - Game modes
+|- - - FFA
+|- - - Teams
+|- Expand to WAN
+|- Chat
 
 */
 const FRAME_RATE = 20;
@@ -18,6 +41,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 let playerData = [];
+let food = [];
 const io = require('socket.io')(server, {
   'pingTimeout': 180000,
   'pingInterval': 25000
@@ -37,9 +61,15 @@ io.on('connection', (client) => {
     size: 10,
     color: undefined,
   });
+
   client.on('clientMSG', (data) => {
     console.log(`Client ${client.id} says "${data}"`);
   });
+
+  client.on('ate'(eaten) => {
+
+  });
+
   client.on('mouseMove', (data) => {
 
     for (let player of playerData) { // go through the playerData
@@ -53,6 +83,7 @@ io.on('connection', (client) => {
     }
 
   });
+
   client.on('disconnect', (reason) => {
     for (let i = 0; i < playerData.length; i++) {
       if (playerData[i].id == client.id) {
