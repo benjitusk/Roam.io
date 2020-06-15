@@ -1,21 +1,11 @@
-const http = require('http').createServer(handler);
-const io = require('socket.io')(http);
-const fs = require('fs');
-http.listen(80);
+const express = require('express');
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+server.listen(80);
 console.log(`Server listening on *:80`);
 
-function handler(req, res) {
-  fs.readFile(`${__dirname}/client/index.html`,
-    (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        return res.end('Error loading index.html')
-      }
-
-      res.writeHead(200);
-      res.end(data);
-    });
-}
+app.use("/", express.static("client"));
 
 io.on(`connection`, (client) => {
   client.start = Date.now();
