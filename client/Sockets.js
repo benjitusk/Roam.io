@@ -1,4 +1,10 @@
+var peers = [];
 const socket = io('http://localhost');
-socket.on("welcome", (data) => {
-  console.log(data);
+
+socket.on('serverMSG', (data) => {
+  console.log(`[SERVER]: ${data}`);
 });
+
+socket.on('update', (data) => {
+  peers = data;
+})
