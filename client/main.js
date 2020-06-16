@@ -1,4 +1,5 @@
 let VERBOSE = true;
+let eatenItems = [];
 
 function setup() {
   frameRate(20);
@@ -33,10 +34,11 @@ function draw() {
 }
 
 function collision(item) {
-  if (item.id != socket.id && dist(player.x, player.y, item.x, item.y) < player.size + item.size && !item.beenEaten) {
+  if (item.id != socket.id && dist(player.x, player.y, item.x, item.y) < player.size + item.size && !item.beenEaten && !itemBeenEaten(item)) {
     console.log(JSON.stringify(item));
     if (player.size > item.size) {
       player.size += item.size;
+      eatenItems.push(item);
       item.beenEaten = true;
       socket.emit('ate', item);
       killDeadCells();
@@ -82,11 +84,12 @@ function killDeadCells() {
 }
 
 function editObject(object, property, value) {
+  console.log(gameObjects);
   if (property == "remove") {
     out(`Received request to destroy objectID ${object.id}...`);
     for (let i = 0; i < gameObjects.length; i++) {
       if (object === gameObjects[i]) {
-        out(`Removing item ${i} from gameObjects!`);
+        out(`Removing item ${object.id} from gameObjects!`);
         gameObjects.splice(i, 1);
         break;
       }
@@ -108,8 +111,17 @@ function editObject(object, property, value) {
       }
     }
   }
+  console.log(gameObjects);
+  socket.emit('editObject', gameObjects);
 }
 
 function out(data) {
   if (VERBOSE) console.log(`[DEBUG]: ${data}\n`);
+}
+
+function itemBeenEaten(item) {
+  for (let object of eatenItems) {
+    if (object === item) return true;
+    return false;
+  }
 }

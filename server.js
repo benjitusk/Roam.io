@@ -106,6 +106,10 @@ io.on('connection', (client) => {
     editObject(eaten, "remove");
   });
 
+  client.on('editObject', (newGameObjects) => {
+    gameObjects = newGameObjects;
+  })
+
   client.on('serverUpdate', (data) => {
 
     for (let player of gameObjects) { // go through the gameObjects
