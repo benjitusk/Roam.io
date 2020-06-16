@@ -101,7 +101,9 @@ io.on('connection', (client) => {
   });
 
   client.on('ate', (eaten) => {
-
+    console.log(`${client.id} ate ${eaten.id}\n`);
+    editObject(eaten, "beenEaten", true);
+    editObject(eaten, "remove");
   });
 
   client.on('serverUpdate', (data) => {
@@ -111,7 +113,8 @@ io.on('connection', (client) => {
         player.x = data.x; // update the data accordingly
         player.y = data.y;
         player.size = data.size;
-        player.color = data.color
+        player.color = data.color;
+        player.beenEaten = data.beenEaten;
         break; // stop looping, our job here is done
       }
     }
@@ -131,6 +134,11 @@ io.on('connection', (client) => {
 });
 
 setInterval(() => {
+  for (let item of gameObjects) {
+    if (item.beenEaten) {
+      editObject(item, "remove");
+    }
+  }
   io.emit('updateClients', gameObjects);
 }, 1000 / FRAME_RATE);
 
@@ -170,7 +178,7 @@ function randomCoords(distance = 25, attempts = 100) {
 }
 
 function out(data) {
-  if (VERBOSE) console.log(`[DEBUG]: ${data}`);
+  if (VERBOSE) console.log(`[DEBUG]: ${data}\n`);
 }
 
 function randInt(min, max) {
@@ -185,4 +193,35 @@ function randInt(min, max) {
 
 function dist(x1, y1, x2, y2) {
   return Math.hypot(x2 - x1, y2 - y1);
+}
+
+
+function editObject(object, property, value) {
+  if (property == "remove") {
+    out(`Received request to destroy objectID ${object.id}...`);
+    for (let i = 0; i < gameObjects.length; i++) {
+      if (object === gameObjects[i]) {
+        out(`Object ${object.id} has been destroyed`);
+        gameObjects.splice(i, 1);
+        break;
+      }
+    }
+  } else {
+    out(`Received request to edit objectID ${object.id} property ${property} to ${value}`);
+    for (let item of gameObjects) {
+      out(`Searching for matching object...`);
+      if (item.id == object.id) {
+        out(`Found matching item, searching for key`);
+        for (key in item) {
+          if (key == property) {
+            out(`Found matching key, changing value...`);
+            item[key] = value;
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+  io.emit('updateClients', gameObjects);
 }
