@@ -2,7 +2,6 @@
 
 In Progress
 |
-|- Make a "Player" Object on the client
 
 
 HIGH PRIORITY
@@ -35,17 +34,49 @@ low priority
 |- Expand to WAN
 |- Chat
 
+Done
+|
+|- Make a "Player" Object on the client
+
 */
+const VERBOSE = true;
+
 const FRAME_RATE = 20;
+
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-let playerData = [];
-let food = [];
+const foodAmount = 10;
+
+let gameObjects = [];
+
+for (let i = 0; i < foodAmount; i++) {
+  let coordinateCandidate = randomCoords();
+  if (coordinateCandidate == false) break; // if randomCoords could not find suitable coords, we ran out of room. stop making more food.
+  let food = {
+    id: gameObjects.length,
+    x: coordinateCandidate.x,
+    y: coordinateCandidate.y,
+    size: 10,
+    color: randInt(255),
+    type: "food",
+    beenEaten: false,
+  };
+  gameObjects.push(food);
+}
+
+let playerCount = 0;
+
+/*
+ * const width  = 5000;
+ * const height = 5000;
+ */
+
 const io = require('socket.io')(server, {
   'pingTimeout': 180000,
   'pingInterval': 25000
 });
+
 server.listen(80);
 console.log('Server listening on *:80');
 
@@ -53,26 +84,29 @@ app.use('/', express.static('client'));
 
 io.on('connection', (client) => {
   client.start = Date.now();
-  console.log(`New Client ID: ${client.id}`);
-  playerData.push({
+  console.log(`New Client ID: ${client.id}. Total clients: ${++playerCount}`);
+  playerCount++;
+  gameObjects.push({
     id: client.id,
     x: 100,
     y: 100,
-    size: 10,
-    color: undefined,
+    size: 15,
+    color: randInt(255),
+    type: "player",
+    beenEaten: false,
   });
 
   client.on('clientMSG', (data) => {
     console.log(`Client ${client.id} says "${data}"`);
   });
 
-  client.on('ate'(eaten) => {
+  client.on('ate', (eaten) => {
 
   });
 
   client.on('serverUpdate', (data) => {
 
-    for (let player of playerData) { // go through the playerData
+    for (let player of gameObjects) { // go through the gameObjects
       if (player.id == client.id) { // when we find the data corresponding with the updating client
         player.x = data.x; // update the data accordingly
         player.y = data.y;
@@ -85,16 +119,70 @@ io.on('connection', (client) => {
   });
 
   client.on('disconnect', (reason) => {
-    for (let i = 0; i < playerData.length; i++) {
-      if (playerData[i].id == client.id) {
-        playerData.splice(i, 1);
+    playerCount -= 1;
+    for (let i = 0; i < gameObjects.length; i++) {
+      if (gameObjects[i].id == client.id) {
+        gameObjects.splice(i, 1);
         break; // stop looping, our job here is done
       }
     }
-    console.log(`Client ID ${client.id} disconnected after ${(Date.now() - client.start)/1000} seconds because ${reason}, leaving ${playerData.length} client(s) left.`);
+    console.log(`Client ID ${client.id} disconnected after ${(Date.now() - client.start)/1000} seconds because ${reason}, leaving ${playerCount} client(s) left.`);
   });
 });
 
 setInterval(() => {
-  io.emit('updateClients', playerData);
+  io.emit('updateClients', gameObjects);
 }, 1000 / FRAME_RATE);
+
+function randomCoords(distance = 25, attempts = 100) {
+
+  for (let i = 0; i < attempts; i++) { // Loop a maximum of ${attempts} times
+    // let x = random(width);
+    // let y = random(height);
+
+    // If chosen coords are invalid
+    // Pick new ones
+    let x = randInt(1000);
+    let y = randInt(1000);
+
+
+    if (gameObjects.length == 0) {
+      return {
+        x: x,
+        y: y
+      };
+    } // if gameObjects array is empty, we would be stuck in an endless loop
+    for (let j = 0; j < gameObjects.length; j++) {
+      let item = gameObjects[j];
+      if (dist(x, y, item.x, item.y) < item.size + distance) {
+        break; // If we are too close, stop looking at these coords
+      }
+      if (j == gameObjects.length - 1) {
+        // out(`Returning (${x}, ${y})`);
+        return {
+          x: x,
+          y: y
+        }; // If we went through each gameObject and had no issues, return these coords
+      }
+    }
+  }
+  return false; // if no suitable coords could be found, return false.
+}
+
+function out(data) {
+  if (VERBOSE) console.log(`[DEBUG]: ${data}`);
+}
+
+function randInt(min, max) {
+  if (max == undefined) {
+    max = min;
+    min = 0;
+  }
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+}
+
+function dist(x1, y1, x2, y2) {
+  return Math.hypot(x2 - x1, y2 - y1);
+}

@@ -1,73 +1,59 @@
-let size = 10;
-let cellColor;
+let c;
 
 function setup() {
-
   frameRate(20);
   createCanvas(windowWidth, windowHeight);
-  fill(255);
   colorMode(HSB);
-  cellColor = random(255);
+  c = random(255);
+  player = new Player(100, 100, 15, random(255));
 }
 
 function draw() {
   background(0);
-  player.update()
-  socket.emit('mouseMove', {});
+  player.updateSelf();
+  player.updateServer();
 
-  for (let peer of peers) {
-    fill(peer.color, 255, 255);
-    ellipse(peer.x, peer.y, peer.size);
+  for (let item of gameObjects) {
+    fill(item.color, 255, 255);
+    ellipse(item.x, item.y, item.size);
+    collision(item);
   }
 
 }
 
-function collision() {
-  // Check against all the foods, alert server if true
-  for (let food of foods) {
-    if (dist(player.x, player.y, food.x, food.y) < player.size + food.size) {
-      // If overlap
-      if (player.size >= food.size) {
-        // If player is bigger
-        socket.emit('ate', {
-          clientEaten: fa
-        });
-      } else {
-        // emit eaten and make food bigger
-      }
-    }
-  }
-
-  // Check against all peers, handle further before alerting server
-  for (let peer of peers) {
-    if (dist(player.x, player.y, peer.x, peer.y) < player.size + food.size && player.id != socket.id) {
-      // if overlaping OTHER players
-      if (player.size > peer.size) {
-        // If we are bigger than them
-        // eat them
-      } else if (player.size < peer.size) {
-        // If we are smaller than them
-        // get eaten
-      }
+function collision(item) {
+  if (item.id != socket.id && dist(player.x, player.y, item.x, item.y) < player.size + item.size) {
+    console.log(JSON.stringify(item));
+    if (player.size > item.size) {
+      player.size += item.size;
+      item.beenEaten = true
+      // Alert the server that ${item} was eaten
     }
   }
 }
 
 class Player {
-  constructor() {
-    this.x;
-    this.y;
-    this.color;
-    this.size;
+  constructor(x, y, size, color) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.color = color;
+    this.beenEaten = false;
   }
 
-  update() {
+  updateSelf() {
+    this.x = mouseX;
+    this.y = mouseY;
+  }
+
+  updateServer() {
     socket.emit('serverUpdate', {
       id: socket.id,
-      x: mouseX,
-      y: mouseY,
-      size: size,
-      color: cellColor
+      x: this.x,
+      y: this.y,
+      size: this.size,
+      color: this.color,
+      type: "player",
 
     });
   }
