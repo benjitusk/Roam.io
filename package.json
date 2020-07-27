@@ -1,0 +1,23 @@
+{
+  "name": "roam.io",
+  "version": "1.0.0",
+  "description": "Agar.io remix",
+  "main": "server.js",
+  "scripts": {
+    "test": "clear && nodemon --inspect=0.0.0.0:9229 server.js",
+    "start": "clear && nodemon server.js"
+  },
+  "author": "Benjixinator",
+  "license": "ISC",
+  "dependencies": {
+    "clear": "^0.1.0",
+    "commander": "^6.0.0",
+    "console.table": "^0.10.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "inquirer": "^7.3.2",
+    "readline": "^1.3.0",
+    "socket.io": "^2.3.0"
+  }
+}
