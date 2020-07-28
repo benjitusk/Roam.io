@@ -2,7 +2,6 @@ const agar = require('./agar');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const inquirer = require('./inquirer');
 const clear = require('clear');
 const readline = require('readline');
 const table = require('console.table');
