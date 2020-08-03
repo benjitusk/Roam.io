@@ -6,7 +6,7 @@
   "scripts": {
     "test": "clear && nodemon --inspect=0.0.0.0:9229 server.js",
     "start": "clear && nodemon server.js",
-    "build" :"rsync -P ./* pi@pi:/var/www/roamio/ && rsync -r ./client pi@pi:/var/www/roamio/client/"
+    "build": "rsync -P ./* pi@pi:/var/www/roamio/ && rsync -r ./client pi@pi:/var/www/roamio/client/"
   },
   "author": "Benjixinator",
   "license": "ISC",

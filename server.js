@@ -1,4 +1,3 @@
-const agar = require('./agar');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -20,44 +19,8 @@ function log(input) {
 
 clear();
 
-// log(
-//   '\nTODO:' +
-//   '\n\nIn Progress' +
-//   '\n|' +
-//   '\n|- Handle client disconnect' +
-//   '\n|- Handle Cell Death' +
-//   '\n|- - Game Over scene' +
-//   '\n|- Add touch controls' +
-//   '\n\nHIGH PRIORITY' +
-//   '\n|' +
-//   '\n|- Fix random disenbodiment' +
-//   '\n|- Cell ejecting mass' +
-//   '\n|- Cell splitting' +
-//   '\n\nMedium Priority' +
-//   '\n|' +
-//   '\n|- Making game options easy to change' +
-//   '\n|- - Game border' +
-//   '\n|- - Show Mass' +
-//   '\n\nlow priority' +
-//   '\n|' +
-//   '\n|- Game modes' +
-//   '\n|- - FFA' +
-//   '\n|- - Teams' +
-//   '\n|- Chat' +
-//   '\n\nDone' +
-//   '\n|' +
-//   '\n|- Expand to WAN' +
-//   '\n|- Find cause of and eliminate gameObject glitching on client side when food is eaten' +
-//   '\n|- Fix Collision detection going out of bounds' +
-//   '\n|- Update server and peers immediately when eating food' +
-//   '\n|- Make some sort of "map"' +
-//   '\n|- Change Controls to WASD' +
-//   '\n|- Make a "Player" Object on the client' +
-//   '\n|- Write a function for random distribution of stuffs' +
-//   '\n|- Perform collision detection on client end\n');
-
 const VERBOSE = true;
-let PORT;
+let PORT = 80;
 
 
 const FRAME_RATE = 30;
@@ -93,31 +56,22 @@ io.on('connection', (client) => {
   client.start = Date.now();
   client.UID = generateUID();
   let spawnCoords = randomCoords();
-  let spawnData = {
-    x: spawnCoords.x,
-    y: spawnCoords.y,
-    color: randInt(255),
-    size: playerSize,
-    type: 'player',
-    beenEaten: false,
-    arenaSize: GAME_ARENA,
-    UID: client.UID,
-    name: undefined,
-  };
+  if (!(spawnCoords.x && spawnCoords.y)) {
+    // if we are unable to find available coords for new player
+    client.disconnect('serverFull'); // kick 'em
+  }
+  let newPlayer = new GameObject(client.UID, 'player', spawnCoords.x, spawnCoords.y, playerSize);
 
   client.on('clientName', (data) => {
-    log(`client ${client.UID} now goes by the name ${data}`);
+    log(`client ${client.UID} has the name ${data}`);
     client.name = data;
+    newPlayer.name = data;
   });
 
-  if (!(spawnData.x && spawnData.y)) {
-    // if we are unable to find available coords for new player
-    client.emit('serverFull'); // kick 'em
-  }
 
-  client.emit('spawnData', spawnData);
-  gameObjects.push(spawnData);
-  log(`New Client ID: ${client.UID}. Total clients: ${getPlayerCount()}`);
+  client.emit('spawnData', newPlayer);
+  gameObjects.push(newPlayer);
+  log(`New Client ID: ${client.UID} at ${Date()}. Total clients: ${getPlayerCount()}`);
 
   client.on('clientMSG', (data) => {
     log(`Client ${client.UID} says "${data}"`);
@@ -374,7 +328,7 @@ function handleCommand(command) {
       }
       break;
     case 'clear':
-      // clear();
+      clear();
       break;
     case 'kickall':
       for (let i in io.sockets.connected) {
@@ -445,3 +399,16 @@ const help = table.getTable([{
     //   usage: '',
   },
 ]);
+
+class GameObject {
+  constructor(UID, type, x, y, size, color, name) {
+    this.UID = UID;
+    this.type = type;
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.color = randInt(255);
+    this.beenEaten = false;
+    this.name = name;
+  }
+}

@@ -1,18 +1,26 @@
 var gameObjects = [];
 var spawnData;
 var player;
-const socket = io('https://roamio.abstractjs.com', {
+let socket = io(window.location.href, {
   // transports: ['websocket'],
   // upgrade: false,
 });
 
 socket.on('spawnData', (data) => {
+  console.log(data);
   spawnData = data;
-  player = new Player(spawnData.x, spawnData.y, 25, random(255));
+  player = new Player(spawnData.UID, spawnData.x, spawnData.y, random(255), 25);
   player.UID = spawnData.UID;
 });
 
-socket.on('connect', () => {});
+socket.on('connect', () => {
+  // let redirect = prompt(`You are connected to ${socket.io.uri}. If you want to connect somewhere else, type it in below:`);
+  // if (redirect) {
+  //   alert('aight, imma head out');
+  //   socket.disconnect();
+  //   socket = io(redirect);
+  // }
+});
 
 socket.on('serverMSG', (data) => {
   alert(`[SERVER]: ${data}`);
